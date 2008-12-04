@@ -10,9 +10,9 @@ $rules=[
 
 //input example
   $input='
-  function bodyContent({{param}}){
+  function bodyContent({{param,color}}){
   background:param;
-  color:white;
+  color:color;
   font-weight:bolder;
 }
 
@@ -24,6 +24,7 @@ color:red;
 
 body{
  background:Red; 
+ Jcss.call(bodyContent(blue,red));
 }';
 $cssOutput=``;
 //features and processes
@@ -72,34 +73,62 @@ trait JcssExecuteFunc{//object = excute functions
    //execute prmeters now
    $parametersListAll=[];
    //print_r($functionsList);
+   $index=0;
 foreach($functionsList as $func){
+  $index++;
   if($func["paremeters"]===null)continue;
 
   $parametersList=$func["paremeters"];
   $parameters=(strpos($parametersList,",")) ? explode(",",$parametersList):[$parametersList];
+  $functionsList[$index]["paremeters"]=$parameters;
+  $functionsList[$index]["body"]=$func["body"];
+  $functionsList[$index]["name"]=$func["name"];
   //parameters goted
-  $body=$func["body"];
-  echo "<br>body is: ".$body."<br><br>";
-  //find paremeter var starts with in function scope ;
-  foreach($parameters as $var){
-  $funcVarsPositions=strpos($body,$var) ? explode($var,$body):false;
-  //execute function call
- 
-  if($funcVarsPositions===false)continue;
-foreach($funcVarsPositions as $varPos){
-  echo $varPos;
-}
-  }
-//extends to body
-  
-
+  $this->executeFunCall($functionsList[$index]);
 }//end executing paremeters
 //print_r($parametersListAll);
-
+//print_r($functionsList);
    }
   
    public function executeFunCall($func=array()){
-     
+     //find paremeter var with in function scope ;
+  
+     $funcName="Jcss.call(".trim(substr($func["name"],0,strpos($func["name"],"(")));
+echo $funcName;
+echo "<br>";
+    //find functions calls
+global $input;
+     $funcCalls=explode($funcName,$input);
+     echo "funtions is:<br>";
+print_r($funcCalls);
+echo "<br><br><bR><br>input is:";
+
+echo "<br>";
+echo $input."<br><br><bR><br>";
+
+   $body=$func["body"];
+   $newInput='';
+   $index=0;
+   foreach($funcCalls as $putFunc){//where function is called
+   $index++;
+  if($index===1)continue;
+    $parameterGiven=substr($putFunc,1,strpos($putFunc,")")-1);
+   $parameterGiven=strpos($parameterGiven,",") ? explode(",",$parameterGiven):$parameterGiven;
+    foreach($func["paremeters"] as $var){//replace paremeter with function called given paremeter
+    if(gettype($parameterGiven)==="string"){
+    $funcBodyExecuted=str_replace($var,$parameterGiven,$body);
+    }
+    elseif(gettype($parameterGiven)==="array"){
+foreach($parameterGiven as $parameterGivenVar){//when more than one paremeter is given
+  $funcBodyExecuted=str_replace($var,$parameterGivenVar,$body);
+  }
+ }
+echo  " executed ".$funcBodyExecuted."<br>";
+
+
+  }
+}
+  //extends to body  
    }
     
 }
