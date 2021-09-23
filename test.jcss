@@ -1,0 +1,24 @@
+function bodyContent($param){
+  background:red;
+  color:white;
+  font-weight:bolder;
+}
+
+Jcss FontSize=50px//only one tap
+function useDivColor(){
+  color:red;
+  background:blue;
+  font-size:10px;
+}
+
+body{
+  bodyContent();
+  bodyContentPadding(50px);
+  font-size:{{FontSize}};
+}
+
+div{
+  bodyContentPadding(50px);
+  color:red;
+  useDivColor();
+}
