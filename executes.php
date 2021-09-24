@@ -10,21 +10,24 @@ $rules=[
 
 //input example
   $input='
-  function bodyContent({{param,color}}){
+  function bodyContent({{param,myColor,myFont}}){
   background:param;
-  color:color;
+  color:myColor;
   font-weight:bolder;
+  font-size:param;
+  font-family:myFont;
 }
 
 function go({{color , background}}){
 color:red;
 background:Red;
 color:red;
+Jcss.call(bodyContent(grey,green,arial));
 }
 
 body{
  background:Red; 
- Jcss.call(bodyContent(blue,red));
+ Jcss.call(bodyContent(blue,red,cursive));
 }';
 $cssOutput=``;
 //features and processes
@@ -94,19 +97,13 @@ foreach($functionsList as $func){
      //find paremeter var with in function scope ;
   
      $funcName="Jcss.call(".trim(substr($func["name"],0,strpos($func["name"],"(")));
-echo $funcName;
-echo "<br>";
     //find functions calls
 global $input;
      $funcCalls=explode($funcName,$input);
-     echo "funtions is:<br>";
-print_r($funcCalls);
-echo "<br><br><bR><br>input is:";
-
-echo "<br>";
-echo $input."<br><br><bR><br>";
-
+ 
    $body=$func["body"];
+   $bodyProcess=$body;
+   echo "<br>before <br>".$bodyProcess."<br>";
    $newInput='';
    $index=0;
    foreach($funcCalls as $putFunc){//where function is called
@@ -114,20 +111,21 @@ echo $input."<br><br><bR><br>";
   if($index===1)continue;
     $parameterGiven=substr($putFunc,1,strpos($putFunc,")")-1);
    $parameterGiven=strpos($parameterGiven,",") ? explode(",",$parameterGiven):$parameterGiven;
+
+ $varIndex=0;//get index of parameter only for array prm uses
     foreach($func["paremeters"] as $var){//replace paremeter with function called given paremeter
     if(gettype($parameterGiven)==="string"){
-    $funcBodyExecuted=str_replace($var,$parameterGiven,$body);
+    $bodyProcess=str_replace($var,$parameterGiven,$bodyProcess);
     }
     elseif(gettype($parameterGiven)==="array"){
-foreach($parameterGiven as $parameterGivenVar){//when more than one paremeter is given
-  $funcBodyExecuted=str_replace($var,$parameterGivenVar,$body);
-  }
- }
-echo  " executed ".$funcBodyExecuted."<br>";
 
-
-  }
-}
+          $bodyProcess=str_replace($var,$parameterGiven[$varIndex], $bodyProcess);
+          $varIndex++;
+      
+        }
+  }//paremeter execution ends here
+  echo "<br>After<br>".$bodyProcess."<br>";
+}//function execution ends here
   //extends to body  
    }
     
